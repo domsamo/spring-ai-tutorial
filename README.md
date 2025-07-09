@@ -2,7 +2,7 @@
 
 Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm OpenAPI 연동까지 단계별로 학습할 수 있는 실습 프로젝트입니다.
 
-**언어**: Kotlin  
+**언어**: Java  
 **프레임워크**: Spring Boot 3.4.4        
 **Spring AI 버전**: `1.0.0-M6` (`1.0.0` 기반 코드도 업로드 예정)
 
@@ -76,4 +76,3 @@ storm.api.key=your-storm-api-key-here
 애플리케이션이 성공적으로 시작되면 다음 주소에서 접근 가능합니다.
 - **메인 서버**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
-

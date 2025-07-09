@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: spring-ai-tutorial
+  ai:
+    openai:
+#      api-key: ${OPENAI_API_KEY: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}
+      api-key: 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
+      embedding:
+        options:
+          model: text-embedding-ada-002
+  # File Upload Settings
+  servlet:
+    multipart:
+      max-file-size: '20MB'
+      max-request-size: '20MB'
+
+# Server Configuration
+server:
+  port: 8080
+
+# Swagger/OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+
+# Storm API Configuration
+storm:
+  api:
+    key: ${STORM_API_KEY:demo-key}
+  default:
+    bucket:
+      id: default-bucket
+
+# Webhook Configuration
+webhook:
+  url: ${WEBHOOK_URL:}
