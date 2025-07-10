@@ -9,26 +9,28 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JasyptConfig {
-    @Value("${jasypt.encryptor.password:defaultPassword}")
+
+    @Value("${jasypt.encryptor.password}")
     private String password;
 
     @Bean("jasyptEncryptorAES")
-    public StringEncryptor stringEncryptor() {
+    public StringEncryptor jasyptEncryptorAES() throws Exception {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(getKey());
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setKeyObtentionIterations("1000");
-        config.setPoolSize("1");
-        config.setProviderName("SunJCE");
-        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        config.setIvGeneratorClassName("org.jasypt.iv.NoIvGenerator");
-        config.setStringOutputType("base64");
+
+        config.setPassword(getKey());	//암호화키
+        config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256"); // 알고리즘
+        config.setKeyObtentionIterations("1000"); // 반복할 해싱 회수
+        config.setPoolSize("1"); // 인스턴스 pool
+//		config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator"); // salt 생성 클래스
+        config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
+        config.setStringOutputType("base64"); //인코딩 방식
         encryptor.setConfig(config);
         return encryptor;
     }
 
-    private static String getKey() {
-        return "rO0ABXNyABRqYXZhLnNlY3VyaXR5LktleVJlcL35T7OImqVDAgAETAAJYWxnb3JpdGhtdAASTGphdmEvbGFuZy9TdHJpbmc7WwAHZW5jb2RlZHQAAltCTAAGZm9ybWF0cQB+AAFMAAR0eXBldAAbTGphdmEvc2VjdXJpdHkvS2V5UmVwJFR5cGU7eHB0AANERVN1cgACW0Ks8xf4BghU4AIAAHhwAAAACFTj3z77q+wLdAADUkFXfnIAGWphdmEuc2VjdXJpdHkuS2V5UmVwJFR5cGUAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AAZTRUNSRVQ=";
+    private String getKey() {
+        return password;
     }
 }

@@ -1,5 +1,6 @@
 package com.fbc.ai.service;
 
+import com.fbc.ai.config.OpenAiConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -20,9 +21,11 @@ import java.util.List;
 @Service
 public class ChatService {
     private final OpenAiApi openAiApi;
+    private final OpenAiConfig openAiConfig;
 
-    public ChatService(OpenAiApi openAiApi) {
+    public ChatService(OpenAiApi openAiApi, OpenAiConfig openAiConfig) {
         this.openAiApi = openAiApi;
+        this.openAiConfig = openAiConfig;
     }
 
     /**
@@ -74,6 +77,6 @@ public class ChatService {
      * @return 챗 응답 객체, 오류 시 null
      */
     public ChatResponse openAiChat(String userInput, String systemMessage) {
-        return openAiChat(userInput, systemMessage, "gpt-3.5-turbo");
+        return openAiChat(userInput, systemMessage, openAiConfig.getDefaultModel());
     }
 }

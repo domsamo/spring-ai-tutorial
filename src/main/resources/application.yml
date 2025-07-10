@@ -1,6 +1,7 @@
 jasypt:
   encryptor:
     bean: jasyptEncryptorAES
+    password: ${JASYPT_ENC_PWD}
 
 spring:
   application:
@@ -8,6 +9,9 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
       embedding:
         options:
           model: text-embedding-ada-002
@@ -22,8 +26,8 @@ spring:
   datasource:
     url: jdbc:postgresql://digitalab.synology.me:6432/dlab_ai_pg
     username: "dlab_ai"
-    password: "Dlab9185!"
-#    password: "ENC(2y0jzDpNlnzt/SuW7eZeiUBbPj6YjNYeNuX8qnaNm6J7KOuT3Gn1s5TIQY7PdyQd)"
+#    password: "Dlab9185!"
+    password: "ENC(2y0jzDpNlnzt/SuW7eZeiUBbPj6YjNYeNuX8qnaNm6J7KOuT3Gn1s5TIQY7PdyQd)"
 
   # File Upload Settings
   servlet:

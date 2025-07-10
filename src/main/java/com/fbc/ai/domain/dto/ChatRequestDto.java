@@ -24,7 +24,7 @@ public class ChatRequestDto {
     }
 
     public ChatRequestDto(String query) {
-        this(query, "gpt-3.5-turbo");
+        this(query, null);
     }
 
     public String getQuery() {

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG 질문 클라이언트</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            position: sticky;
+            top: 0;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #0078FF;
+            color: white;
+            border-radius: 1rem 1rem 0 1rem;
+            margin-left: 20%;
+            font-weight: 500;
+        }
+
+        .ai-message {
+            align-self: center;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            width: 80%;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .input-container {
+            padding: 1rem;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 0.5rem;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-container input:focus {
+            outline: none;
+            border-color: #0078FF;
+            box-shadow: 0 1px 5px rgba(0,120,255,0.2);
+        }
+
+        .input-container button {
+            padding: 0.75rem 1.5rem;
+            background-color: #0078FF;
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .input-container button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: #333;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #555;
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .empty-state p {
+            line-height: 1.6;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="model-selector">
+                <label for="model-select">모델:</label>
+                <select id="model-select" class="form-control form-control-sm">
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4.1-mini">GPT-4.1-mini</option>
+                    <option value="gpt-4.1-nano">GPT-4.1-nano</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini">GPT-4o-mini</option>
+                </select>
+            </div>
+            <h2 class="text-center flex-grow-1">RAG(Retrieval-Augmented Generation)</h2>
+            <div style="width: 150px;"></div> <!-- Spacer for balance -->
+        </div>
+    </div>
+
+    <div id="chat-container" class="chat-container">
+        <div id="empty-state" class="empty-state">
+            <h3>질문을 입력하여 대화를 시작하세요</h3>
+            <p>PDF 문서에서 정보를 검색하여 답변을 생성합니다.</p>
+        </div>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <span class="ml-2">답변 생성 중...</span>
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="question" class="form-control" placeholder="질문을 입력하세요" onkeypress="handleKeyPress(event)">
+        <button onclick="submitQuestion()" class="btn">전송</button>
+    </div>
+
+<script>
+    // 페이지 로드 시 입력 필드에 포커스
+    window.onload = function() {
+        document.getElementById('question').focus();
+    };
+
+    // Enter 키 처리
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            submitQuestion();
+        }
+    }
+
+    async function submitQuestion() {
+        const questionInput = document.getElementById("question");
+        const question = questionInput.value.trim();
+        const modelSelect = document.getElementById("model-select");
+        const model = modelSelect.value;
+        const chatContainer = document.getElementById("chat-container");
+        const loadingDiv = document.getElementById("loading");
+        const emptyState = document.getElementById("empty-state");
+
+        if (!question) {
+            return;
+        }
+
+        // 빈 상태 메시지 숨기기
+        if (emptyState) {
+            emptyState.style.display = "none";
+        }
+
+        // 사용자 메시지 추가
+        const userMessageElement = document.createElement("div");
+        userMessageElement.className = "message user-message";
+        userMessageElement.textContent = question;
+        chatContainer.appendChild(userMessageElement);
+
+        // 입력 필드 초기화
+        questionInput.value = "";
+        questionInput.focus();
+
+        // 스크롤을 최하단으로 이동
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // 로딩 표시
+        loadingDiv.style.display = "flex";
+
+        try {
+            // API 호출 (모델 정보 포함)
+            const response = await fetch(`/api/pdf/answer?question=${encodeURIComponent(question)}&model=${encodeURIComponent(model)}`);
+            const result = await response.json();
+
+            // AI 응답 메시지 추가
+            const aiMessageElement = document.createElement("div");
+            aiMessageElement.className = "message ai-message";
+
+            if (result && result.success && result.data && result.data.answer) {
+                aiMessageElement.textContent = result.data.answer;
+            } else {
+                aiMessageElement.textContent = "적절한 답변이 없습니다.";
+            }
+
+            chatContainer.appendChild(aiMessageElement);
+
+            // 스크롤을 최하단으로 이동
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        } catch (error) {
+            console.error("Error fetching answer:", error);
+
+            // 오류 메시지 추가
+            const errorMessageElement = document.createElement("div");
+            errorMessageElement.className = "message ai-message";
+            errorMessageElement.innerHTML = "<span class='text-danger'>오류가 발생했습니다. 다시 시도해 주세요.</span>";
+            chatContainer.appendChild(errorMessageElement);
+
+            // 스크롤을 최하단으로 이동
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        } finally {
+            // 로딩 숨기기
+            loadingDiv.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>

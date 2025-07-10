@@ -53,12 +53,12 @@ public class RagDataLoaderConfig {
             // # 1.단계 : 문서로드(Load Documents)
             PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(pdfResource,config);
 
-            List<Document> documents=pdfReader.get();
+            List<Document> documents = pdfReader.get();
 
             // 1000글자 단위로 자른다.
             // # 2.단계 : 문서분할(Split Documents)
             TokenTextSplitter splitter = new TokenTextSplitter(1000, 400, 10, 5000, true);
-            List<Document> splitDocuments=splitter.apply(documents);
+            List<Document> splitDocuments = splitter.apply(documents);
             log.info("splitDocuments.size() : {}", splitDocuments.size()); // 45
             log.info("splitDocuments.get(0) : {}", splitDocuments.get(0)); // 25
 
