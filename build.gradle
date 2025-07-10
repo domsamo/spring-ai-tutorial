@@ -4,8 +4,8 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
+group = 'com.fbc'
+version = '1.0.0'
 
 java {
     toolchain {
@@ -13,8 +13,15 @@ java {
     }
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 ext {
@@ -28,10 +35,30 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    // boot -----------------------------------------------------------------------
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // AI -----------------------------------------------------------------------
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
-    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+
+    // RAG -----------------------------------------------------------------------
+    implementation 'org.springframework.ai:spring-ai-pdf-document-reader'
+    implementation 'org.springframework.ai:spring-ai-pgvector-store-spring-boot-starter'
+    implementation 'org.apache.pdfbox:pdfbox:3.0.0'
+    implementation 'org.apache.pdfbox:pdfbox-io:3.0.0'
+    implementation 'org.apache.pdfbox:fontbox:3.0.0'
+    implementation 'org.apache.pdfbox:pdfbox-tools:3.0.0'
+
+    // Docker -----------------------------------------------------------------------
+//    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+//    developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
+
+    //encrypt -----------------------------------------------------------------------
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+
+    // test -----------------------------------------------------------------------
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

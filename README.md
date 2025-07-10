@@ -4,7 +4,7 @@ Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm Ope
 
 **언어**: Java  
 **프레임워크**: Spring Boot 3.4.4        
-**Spring AI 버전**: `1.0.0-M6` (`1.0.0` 기반 코드도 업로드 예정)
+**Spring AI 버전**: `1.0.0-M6`
 
 ## 강의 구성
 
@@ -19,10 +19,6 @@ Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm Ope
 - **실습 2**: RAG 파이프라인 구축하기 - Data Retrieval & Generation
 - **브랜치**: `chapter2` (현재 브랜치)
 
-### Chapter 3. Storm OpenAPI 연동
-- **이론**: Storm이란?
-- **실습**: Storm OpenAPI를 사용해 초간단 챗봇 만들기
-- **브랜치**: `chapter3`
 
 ## 참고 사항
 
@@ -47,7 +43,6 @@ git switch chapter3
 
 ### 필요한 환경
 - **Java**: 17 이상
-- **Kotlin**: 1.9.25
 - **API Keys**:
     - **Chapter 1-2**: OpenAI API Key (LLM 모델 및 임베딩 모델 사용)
     - **Chapter 3**: Storm API Key (Storm OpenAPI 사용)
@@ -58,9 +53,6 @@ git switch chapter3
 ```properties
 # Chapter 1-2
 spring.ai.openai.api-key=your-openai-api-key-here
-
-# Chapter 3
-storm.api.key=your-storm-api-key-here
 ```
 
 ### 2. 프로젝트 빌드 및 실행

@@ -1,3 +1,7 @@
+jasypt:
+  encryptor:
+    bean: jasyptEncryptorAES
+
 spring:
   application:
     name: spring-ai-tutorial
@@ -7,6 +11,20 @@ spring:
       embedding:
         options:
           model: text-embedding-ada-002
+
+    vectorstore:
+      pgvector:
+        index-type: hnsw
+        distance-type: cosine_distance
+        dimensions: 1536
+        initialize-schema: false
+
+  datasource:
+    url: jdbc:postgresql://digitalab.synology.me:6432/dlab_ai_pg
+    username: "dlab_ai"
+    password: "Dlab9185!"
+#    password: "ENC(2y0jzDpNlnzt/SuW7eZeiUBbPj6YjNYeNuX8qnaNm6J7KOuT3Gn1s5TIQY7PdyQd)"
+
   # File Upload Settings
   servlet:
     multipart:
@@ -21,14 +39,6 @@ server:
 springdoc:
   api-docs:
     path: /api-docs
-
-# Storm API Configuration
-storm:
-  api:
-    key: ${STORM_API_KEY:demo-key}
-  default:
-    bucket:
-      id: default-bucket
 
 # Webhook Configuration
 webhook:
