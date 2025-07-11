@@ -6,7 +6,9 @@ Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm Ope
 **프레임워크**: Spring Boot 3.4.4        
 **Spring AI 버전**: `1.0.0-M6`
 
-## 강의 구성
+## AI Model?
+
+
 
 ### Chapter 1. Spring AI와 LLM 호출
 - **이론**: Spring AI를 왜 배워야할까?

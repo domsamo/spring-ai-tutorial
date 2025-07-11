@@ -9,7 +9,8 @@
 
 1. PostgreSQL 데이터베이스를 설치하고 실행합니다.
 2. 사용자 및 DataBase를 생성합니다.
-    ```sql
+
+```sql
     -- 1. 사용자 생성
     CREATE USER your_username WITH SUPERUSER PASSWORD 'your_password';
     
@@ -19,10 +20,11 @@
     -- 3. 사용자에게 모든 권한 부여
     GRANT ALL PRIVILEGES ON DATABASE dlab_ai_pg TO dlab_ai;
     
-    ```
+```
 
-3. 데이터베이스에 접속하여 pgvector 확장 및 테이블을 생성합니다:
-   ```sql
+3. 데이터베이스에 접속하여 pgvector 확장 및 테이블을 생성합니다
+
+```sql
    -- your_db_name 에 your_username 접속하여 pgvector 확장 설치
    CREATE EXTENSION IF NOT EXISTS vector;
    CREATE EXTENSION IF NOT EXISTS hstore;
@@ -41,8 +43,7 @@
    
    -- 현재 데이터베이스에 설치된 확장 목록 확인
    SELECT * FROM pg_extension;
-
-   ```
+```
 3. application.yml 파일에서 데이터베이스 연결 정보를 올바르게 설정합니다:
    ```yaml
    spring:
@@ -69,7 +70,8 @@ dependencies {
 ```
 5. Docker Compose 의존성 제거하기
 
-build.gradle 파일에서 다음 두 줄을 주석 처리하거나 제거합니다:
+build.gradle 파일에서 다음 두 줄을 주석 처리하거나 제거합니다
+
 ```groovy
 // developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 // developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
@@ -97,31 +99,34 @@ build.gradle 파일에서 다음 두 줄을 주석 처리하거나 제거합니�
     ```
    
 2. compose.yml 실행
-    ```yaml
-    services:
-      pgvector:
-        image: 'pgvector/pgvector:pg17'
-        environment:
-          - 'POSTGRES_DB=mydb'
-          - 'POSTGRES_USER=myuser'
-          - 'POSTGRES_PASSWORD=secret'
-        labels:
-          - "org.springframework.boot.service-connection=postgres"
-        ports:
-          - '5432:5432'
-      ```
+```yaml
+services:
+  pgvector:
+    image: 'pgvector/pgvector:pg17'
+    environment:
+      - 'POSTGRES_DB=mydb'
+      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_PASSWORD=secret'
+    labels:
+      - "org.springframework.boot.service-connection=postgres"
+    ports:
+      - '5432:5432'
+```
 
 3. application.yml
+ 
 ```yaml
+
 spring:
   ai:
-	vectorstore:
-	  pgvector:
-		index-type: HNSW
-		distance-type: COSINE_DISTANCE
-		dimensions: 1536
-		max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
 ```
+
 Spring Application 기동시 자동으로 compose.yml 설정값을 읽어 container를 생성하고, datasource 정보를 처리합니다.
 
 ---
@@ -129,6 +134,7 @@ Spring Application 기동시 자동으로 compose.yml 설정값을 읽어 contai
 ### ※ Docker Compose 자동 구성 비활성화하기
 
 application.yml 파일에 다음 설정을 추가합니다:
+
 ```yaml
 spring:
   docker:
