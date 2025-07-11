@@ -18,18 +18,30 @@ public class ApiResponseDto<T> {
     @Schema(description = "오류 메시지 (실패 시)")
     private final String error;
 
-    public ApiResponseDto(boolean success, T data, String error) {
+    @Schema(description = "OpenAI API 메타데이터")
+    private final ApiResponseMetaDto meta;
+
+    public ApiResponseDto(boolean success, T data, String error, ApiResponseMetaDto meta) {
         this.success = success;
         this.data = data;
         this.error = error;
+        this.meta = meta;
+    }
+
+    public ApiResponseDto(boolean success, T data, String error) {
+        this(success, data, error, null);
     }
 
     public ApiResponseDto(boolean success, T data) {
-        this(success, data, null);
+        this(success, data, null, null);
+    }
+
+    public ApiResponseDto(boolean success, T data, ApiResponseMetaDto meta) {
+        this(success, data, null, meta);
     }
 
     public ApiResponseDto(boolean success, String error) {
-        this(success, null, error);
+        this(success, null, error, null);
     }
 
     public boolean isSuccess() {
@@ -42,5 +54,9 @@ public class ApiResponseDto<T> {
 
     public String getError() {
         return error;
+    }
+
+    public ApiResponseMetaDto getMeta() {
+        return meta;
     }
 }

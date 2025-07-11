@@ -2,6 +2,9 @@ package com.fbc.ai.controller.rag;
 
 import com.fbc.ai.config.OpenAiConfig;
 import com.fbc.ai.domain.dto.ApiResponseDto;
+import com.fbc.ai.domain.dto.ApiResponseMetaDto;
+import com.fbc.ai.service.ApiMetaService;
+import com.fbc.ai.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,6 +48,8 @@ public class PdfController {
     private final OpenAiApi openAiApi;
     private final OpenAiConfig openAiConfig;
     private final VectorStore vectorStore;
+    private final ChatService chatService;
+    private final ApiMetaService apiMetaService;
 
     // # 6.단계 : 프롬프트 생성(Create Prompt)
     private String prompt = """
@@ -67,10 +72,12 @@ public class PdfController {
             답변은 한글로 해줘
      */
 
-    public PdfController(OpenAiApi openAiApi, OpenAiConfig openAiConfig, VectorStore vectorStore) {
+    public PdfController(OpenAiApi openAiApi, OpenAiConfig openAiConfig, VectorStore vectorStore, ChatService chatService, ApiMetaService apiMetaService) {
         this.openAiApi = openAiApi;
         this.openAiConfig = openAiConfig;
         this.vectorStore = vectorStore;
+        this.chatService = chatService;
+        this.apiMetaService = apiMetaService;
     }
 
     /**
@@ -128,19 +135,22 @@ public class PdfController {
                     .openAiApi(openAiApi)
                     .build();
 
-            String answer = chatModel
-                    .call(promptWithOptions)
-                    .getResult()
-                    .getOutput()
-                    .getText();
+            // 응답 객체 저장
+            org.springframework.ai.chat.model.ChatResponse response = chatModel.call(promptWithOptions);
+
+            String answer = response.getResult().getOutput().getText();
 
             log.debug("AI 응답 생성 완료: {}", answer);
+
+            // 메타데이터 추출
+            ApiResponseMetaDto metadata = apiMetaService.extractMetadata(response, modelToUse);
+            log.debug("메타데이터 추출: {}", metadata);
 
             Map<String, Object> data = new HashMap<>();
             data.put("answer", answer);
 
             return ResponseEntity.ok(
-                    new ApiResponseDto<>(true, data)
+                    new ApiResponseDto<>(true, data, metadata)
             );
         } catch (Exception e) {
             log.error("PDF QA API 처리 중 오류 발생", e);

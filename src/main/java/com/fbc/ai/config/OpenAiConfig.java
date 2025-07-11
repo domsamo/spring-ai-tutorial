@@ -1,10 +1,12 @@
 package com.fbc.ai.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 
 /**
  * OpenAI API 설정
@@ -18,6 +20,25 @@ public class OpenAiConfig {
 
     @Value("${spring.ai.openai.chat.options.model:gpt-3.5-turbo}")
     private String defaultModel;
+
+    @Value("classpath:/prompt.txt")
+    private Resource txtPrompt;
+
+    @Bean
+    public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
+//        return chatCLientBuilder
+//                .build();
+
+// --- default System prompt ---
+//        return chatCLientBuilder
+//                .defaultSystem("시스템 메시지")
+//                .build();
+
+// --- txt Prompt default System prompt
+        return chatCLientBuilder
+                .defaultSystem(txtPrompt)
+                .build();
+    }
 
     /**
      * OpenAI API 클라이언트 빈 등록

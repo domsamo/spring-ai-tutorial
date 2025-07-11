@@ -258,7 +258,32 @@
             aiMessageElement.className = "message ai-message";
 
             if (result && result.success && result.data && result.data.answer) {
+                // 응답 텍스트 추가
                 aiMessageElement.textContent = result.data.answer;
+
+                // 메타데이터가 있으면 사용량 정보 추가
+                if (result.meta) {
+                    const metaDiv = document.createElement("div");
+                    metaDiv.className = "meta-info mt-3 pt-2 border-top";
+                    metaDiv.style.fontSize = "0.8rem";
+                    metaDiv.style.color = "#6c757d";
+
+                    let metaHtml = "<strong>토큰 사용량:</strong> ";
+                    if (result.meta.promptTokens !== null && result.meta.completionTokens !== null) {
+                        metaHtml += `프롬프트: ${result.meta.promptTokens}, `;
+                        metaHtml += `완성: ${result.meta.completionTokens}, `;
+                        metaHtml += `총: ${result.meta.totalTokens}`;
+                    } else {
+                        metaHtml += "정보 없음";
+                    }
+
+                    if (result.meta.model) {
+                        metaHtml += `<br><strong>모델:</strong> ${result.meta.model}`;
+                    }
+
+                    metaDiv.innerHTML = metaHtml;
+                    aiMessageElement.appendChild(metaDiv);
+                }
             } else {
                 aiMessageElement.textContent = "적절한 답변이 없습니다.";
             }
