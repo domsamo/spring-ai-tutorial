@@ -3,6 +3,7 @@ package com.fbc.ai.service;
 import com.fbc.ai.config.OpenAiConfig;
 import com.fbc.ai.domain.dto.Answer;
 import com.fbc.ai.domain.dto.ApiResponseMetaDto;
+import com.fbc.ai.domain.dto.Movie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -11,13 +12,18 @@ import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * OpenAI API를 사용하여 질의응답을 수행하는 서비스
@@ -118,8 +124,8 @@ public class ChatService {
      * User Prompt for Recipe
      */
     private final String recipePrompt = """
-            Answer for {foodName} for {query}?
-            Answer in Korean.  
+        Answer for {foodName} for {query}?
+        Answer in Korean.  
     """;
 
     /**
@@ -135,6 +141,89 @@ public class ChatService {
                     .param("query", query)
                 ).call()
                 .entity(Answer.class);
+    }
+
+    /**
+     * List 형태로 응답 데이터 Conversion
+     *
+     * @param query
+     * @return
+     */
+    public List<String> chatList(String query) {
+        return chatClient.prompt()
+                .user(query)
+                .call()
+                .entity(new ListOutputConverter(new DefaultConversionService()));
+    }
+
+    /**
+     * Map 형태로 응답 데이터 Conversion
+     *
+     * @param query
+     * @return
+     */
+    public Map<String, String> chatMap(String query) {
+        return chatClient.prompt()
+                .user(query)
+                .call()
+                .entity(new ParameterizedTypeReference<Map<String, String>>() { });
+    }
+
+    /**
+     * 사용자 정의 응답 데이터 Conversion
+     *
+     * @param directorName
+     * @return
+     */
+    public List<Movie> chatMovie(String directorName) {
+        // "{directorName}가 감독한 영화 목록을 생성하세요. 감독이 알려지지 않은 경우, null을 반환하세요.
+                //각 영화는 제목과 개봉 연도를 포함해야 합니다. {format}"
+        String template= """
+             "Generate a list of movies directed by {directorName}. If the director is unknown, return null.
+             한국 영화는 한글로 표기해줘.
+             Each movie should include a title and release year. {format}"
+         """;
+
+        List<Movie> movieList = chatClient.prompt()
+                .user(userSpec -> userSpec.text(template)
+                        .param("directorName", directorName)
+                        .param("format", "json"))
+                .call()
+                .entity(new ParameterizedTypeReference<List<Movie>>() {});
+
+        return movieList;
+    }
+
+
+    /**
+     * AI Chat - simple
+     * @param message
+     * @return
+     */
+    public String getResponse(String message){
+        return chatClient.prompt()
+                .user(message)
+                .call()
+                .content();
+    }
+
+    /**
+     * 시스템 input으로 AI 채팅 처리
+     */
+    public void startChat(){
+        Scanner scanner = new Scanner(System.in);
+        log.info("Enter your message:");
+        while (true){
+            String message = scanner.nextLine();
+            if(message.equals("exit")){
+                log.info("Exiting chat...");
+                break;
+            }
+
+            String response = getResponse(message);
+            log.info("Bot: {}", response);
+        }
+        scanner.close();
     }
 
     /**
@@ -199,6 +288,5 @@ public class ChatService {
     public ApiResponseMetaDto extractMetadata(ChatResponse response, String model) {
         return apiMetaService.extractMetadata(response, model);
     }
-
 
 }

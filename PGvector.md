@@ -48,9 +48,9 @@
    ```yaml
    spring:
      datasource:
-       url: jdbc:postgresql://localhost:5432/your_database_name
-       username: your_username
-       password: your_password
+       url: jdbc:postgresql://localhost:5432/my_pg_db
+       username: spring
+       password: secret
      ai:
        vectorstore:
          pgvector:
@@ -104,8 +104,8 @@ services:
   pgvector:
     image: 'pgvector/pgvector:pg17'
     environment:
-      - 'POSTGRES_DB=mydb'
-      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_DB=my_pg_db'
+      - 'POSTGRES_USER=spring'
       - 'POSTGRES_PASSWORD=secret'
     labels:
       - "org.springframework.boot.service-connection=postgres"

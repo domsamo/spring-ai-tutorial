@@ -2,6 +2,8 @@ package com.fbc.ai.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +37,13 @@ public class OpenAiConfig {
 //                .build();
 
 // --- txt Prompt default System prompt
+//        return chatCLientBuilder
+//                .defaultSystem(txtPrompt)
+//                .build();
+
+// --- Adviser 지정
         return chatCLientBuilder
-                .defaultSystem(txtPrompt)
+                .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
                 .build();
     }
 

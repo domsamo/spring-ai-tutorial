@@ -1,12 +1,39 @@
 # Spring AI Tutorial
 
-Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm OpenAPI 연동까지 단계별로 학습할 수 있는 실습 프로젝트입니다.
+Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축 실습 프로젝트입니다.
 
 **언어**: Java  
 **프레임워크**: Spring Boot 3.4.4        
 **Spring AI 버전**: `1.0.0-M6`
 
-## AI Model
+## --- 환경 설정 ---
+### 1. API Key 설정
+**${OPENAI_API_KEY}** 값은 윈도우 시스템 환경변수에 직접 설정 
+
+`application.yml` 
+```yaml
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+```
+### 2. 프로젝트 빌드 및 실행
+
+```bash
+# 프로젝트 빌드
+./gradlew build
+
+# 애플리케이션 실행
+./gradlew bootRun
+```
+
+애플리케이션이 성공적으로 시작되면 다음 주소에서 접근 가능합니다.
+- **메인 서버**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+
+
+
+## --- AI Model ---
 | Category          | Description                              |   Exsample   |
 |:------------------|:-----------------------------------------|:------------:|
 | Chat Models       | 자연어 처리 및 대화 기능을 제공하는 LLM 기반 모델           | AI 챗봇, Q&A 시스템 |
@@ -17,6 +44,8 @@ Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm Ope
 
 
 ### Chapter 1. Chat Model
+
+#### 1) ChatClient 
 - ChatClient 생성 (/api/vi/chat/chat)
 ```java
 @Bean
@@ -25,6 +54,8 @@ public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
             .build();
 }
 ```
+
+#### 2) Prompt
 
 - Default System Prompt 설정 
 ```java
@@ -89,62 +120,72 @@ public class RecipeController {
 }
 ``` 
 
-### Chapter 2. Structured Output
+
+#### 3) Structured Output
+
+Spring AI에서 Structured Output은 LLM의 자유로운 텍스트 출력을 구조화된 형식으로 변환하는 것을 제공.
 
 ![Structured Output](https://github.com/domsamo/spring-ai-tutorial/blob/main/src/main/resources/templates/img/structured_output.png)
 
+대표적으로 List의 형태나 Map형태의 Output 사용.
 
-- **이론**: 나만의 RAG 챗봇 설계하기
-- **실습 1**: RAG 파이프라인 구축하기 - Data Indexing
-- **실습 2**: RAG 파이프라인 구축하기 - Data Retrieval & Generation
-- **브랜치**: `chapter2` (현재 브랜치)
+![Structured Output2](https://github.com/domsamo/spring-ai-tutorial/blob/main/src/main/resources/templates/img/structured_output2.png)
 
-
-## 참고 사항
-
-### 브랜치 관리
-각 Chapter 별로 실습할 때는 해당 브랜치로 전환해주세요.
-
-```bash
-# Chapter 1 실습
-git switch chapter1_exercise
-
-# Chapter 1 실습 후 완성 코드 확인
-git switch chapter1_completed
-
-# Chapter 2 실습
-git switch chapter2
-
-# Chapter 3 실습
-git switch chapter3
+- List 형식 (/api/vi/chat/chatList)
+```java
+    public List<String> chatlist(String query) {
+        return chatClient.prompt()
+              .user(query)
+              .call()
+              .entity(new ListOutputConverter(new DefaultConversionService()));
+    }
 ```
 
-## 프로젝트 설정
+- Map 형식 (/api/vi/chat/chatMap)
+```java
+    public Map<String, String> chatMap(String query) {
+        return chatClient.prompt()
+            .user(query)
+            .call()
+            .entity(new ParameterizedTypeReference<Map<String, String>>() { });
+}
 
-### 필요한 환경
-- **Java**: 17 이상
-- **API Keys**:
-    - **Chapter 1-2**: OpenAI API Key (LLM 모델 및 임베딩 모델 사용)
-    - **Chapter 3**: Storm API Key (Storm OpenAPI 사용)
-
-### 1. API Key 설정
-
-`application.properties` 파일에 직접 추가
-```properties
-# Chapter 1-2
-spring.ai.openai.api-key=your-openai-api-key-here
 ```
 
-### 2. 프로젝트 빌드 및 실행
-
-```bash
-# 프로젝트 빌드
-./gradlew build
-
-# 애플리케이션 실행
-./gradlew bootRun
+- User Object 형식 (/api/vi/chat/chatMovie)
+```java
+    List<Movie> movieList = chatClient.prompt()
+            .user(userSpec -> userSpec.text(template)
+                    .param("directorName", directorName)
+                    .param("format", "json"))
+            .call()
+            .entity(new ParameterizedTypeReference<List<Movie>>() {});
 ```
 
-애플리케이션이 성공적으로 시작되면 다음 주소에서 접근 가능합니다.
-- **메인 서버**: http://localhost:8080
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+#### 4) Spring AI Advisors
+- 메모리
+```java
+@Bean
+public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
+    return chatCLientBuilder
+            .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+            .build();
+}    
+```
+ 
+- CommandLineAppStartupRunner
+```java
+public class CommandLineAppStartupRunner implements CommandLineRunner {
+
+    private final ChatService chatService;
+
+    public CommandLineAppStartupRunner(ChatService chatService) {
+        this.chatService = chatService;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        chatService.startChat();
+    }
+}
+``` 

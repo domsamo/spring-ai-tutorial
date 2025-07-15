@@ -1,9 +1,6 @@
 package com.fbc.ai.controller.chat;
 
-import com.fbc.ai.domain.dto.Answer;
-import com.fbc.ai.domain.dto.ApiResponseDto;
-import com.fbc.ai.domain.dto.ApiResponseMetaDto;
-import com.fbc.ai.domain.dto.ChatRequestDto;
+import com.fbc.ai.domain.dto.*;
 import com.fbc.ai.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,7 +34,7 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    /**
+    /** ----------------------------------------------------------------------------
      * 기본 OpenAI API로 응답 생성(Get)
      */
     @Operation(
@@ -85,7 +83,7 @@ public class ChatController {
     }
     */
 
-    /**
+    /** ----------------------------------------------------------------------------
      * PlaceHolder 연동
      */
     @Operation(
@@ -132,7 +130,7 @@ public class ChatController {
     }
 
 
-    /**
+    /** ----------------------------------------------------------------------------
      * 기본 OpenAI API로 응답 생성(Get)
      */
     @Operation(
@@ -180,7 +178,7 @@ public class ChatController {
     }
     */
 
-    /**
+    /** ----------------------------------------------------------------------------
      * User Prompt - PlaceHolder 연동
      */
     @Operation(
@@ -202,11 +200,82 @@ public class ChatController {
             @Parameter(description = "요리이름(햄버거)", required = true)
             @RequestParam("foodName") String foodName
     ) {
-
         return chatService.recipe(foodName, query);
     }
 
-    /**
+
+    /** ----------------------------------------------------------------------------
+     * Structured Output - List
+     */
+    @Operation(
+            summary = "[Structured Output - List]",
+            description = "AI 응답을 List 형태로 변환 응답 처리."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "LLM 응답 성공",
+            content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
+    )
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    @GetMapping("/chatList")
+    public List<String> chatList(
+            @Parameter(description = "채팅 메시지(미국의 주요 도시를 알려줘)", required = true)
+            @RequestParam("query") String query
+    ) {
+        return chatService.chatList(query);
+    }
+
+    /** ----------------------------------------------------------------------------
+     * Structured Output - Map
+     */
+    @Operation(
+            summary = "[Structured Output - Map]",
+            description = "AI 응답을 List 형태로 변환 응답 처리."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "LLM 응답 성공",
+            content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
+    )
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    @GetMapping("/chatMap")
+    public Map<String, String> chatMap(
+            @Parameter(description = "채팅 메시지(국가와 그 국가의 수도를 5개 만들어줘)", required = true)
+            @RequestParam("query") String query
+    ) {
+        return chatService.chatMap(query);
+    }
+
+    /** ----------------------------------------------------------------------------
+     * Structured Output - Map
+     */
+    @Operation(
+            summary = "[Structured Output - Customer Object]",
+            description = "AI 응답을 사용자 정의 Object 형태로 변환 응답 처리."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "LLM 응답 성공",
+            content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
+    )
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    @GetMapping("/chatMovie")
+    public List<Movie> chatMovie(
+            @Parameter(description = "영화감독이름(봉준호)", required = true)
+            @RequestParam("directorName") String directorName
+    ) {
+        return chatService.chatMovie(directorName);
+    }
+
+
+
+
+
+
+    /** ----------------------------------------------------------------------------
      * 사용자의 메시지를 받아 OpenAI API로 응답 생성
      */
     @Operation(
