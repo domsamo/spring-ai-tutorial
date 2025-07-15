@@ -5,6 +5,7 @@ import com.fbc.ai.domain.dto.ApiResponseDto;
 import com.fbc.ai.domain.dto.ApiResponseMetaDto;
 import com.fbc.ai.service.ApiMetaService;
 import com.fbc.ai.service.ChatService;
+import com.fbc.ai.service.RagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,15 +13,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.document.Document;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * PDF 문서 기반 질의응답 API 컨트롤러
@@ -41,7 +37,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/pdf")
+@RequestMapping("/api/v1/pdf")
 @Tag(name = "PDF QA API", description = "PDF 문서 기반 질의응답 API")
 public class PdfController {
 
@@ -50,6 +46,7 @@ public class PdfController {
     private final VectorStore vectorStore;
     private final ChatService chatService;
     private final ApiMetaService apiMetaService;
+    private final RagService ragService;
 
     // # 6.단계 : 프롬프트 생성(Create Prompt)
     private String prompt = """
@@ -72,12 +69,13 @@ public class PdfController {
             답변은 한글로 해줘
      */
 
-    public PdfController(OpenAiApi openAiApi, OpenAiConfig openAiConfig, VectorStore vectorStore, ChatService chatService, ApiMetaService apiMetaService) {
+    public PdfController(OpenAiApi openAiApi, OpenAiConfig openAiConfig, VectorStore vectorStore, ChatService chatService, ApiMetaService apiMetaService, RagService ragService) {
         this.openAiApi = openAiApi;
         this.openAiConfig = openAiConfig;
         this.vectorStore = vectorStore;
         this.chatService = chatService;
         this.apiMetaService = apiMetaService;
+        this.ragService = ragService;
     }
 
     /**
@@ -120,7 +118,7 @@ public class PdfController {
 
             Map<String, Object> promptsParameters = new HashMap<>();
             promptsParameters.put("input", question);
-            promptsParameters.put("documents", findSimilarData(question));
+            promptsParameters.put("documents", ragService.findSimilarData(question));
 
             // 모델 옵션 설정
             ChatOptions chatOptions = ChatOptions.builder()
@@ -136,7 +134,7 @@ public class PdfController {
                     .build();
 
             // 응답 객체 저장
-            org.springframework.ai.chat.model.ChatResponse response = chatModel.call(promptWithOptions);
+            ChatResponse response = chatModel.call(promptWithOptions);
 
             String answer = response.getResult().getOutput().getText();
 
@@ -160,29 +158,4 @@ public class PdfController {
         }
     }
 
-    /**
-     * 질문과 관련된 문서 데이터를 검색합니다.
-     * 
-     * @param question 사용자 질문
-     * @return 검색된 문서 내용
-     */
-    private String findSimilarData(String question) {
-        log.debug("유사 문서 검색 시작: question={}", question);
-
-        SearchRequest request = SearchRequest.builder()
-                .query(question)
-                .topK(2)  // 상위 2개 문서 검색
-                .build();
-
-        List<Document> documents = vectorStore.similaritySearch(request);
-        log.debug("검색된 문서 수: {}", documents.size());
-
-        String result = documents
-                .stream()
-                .map(document -> document.getText())
-                .collect(Collectors.joining("\n\n"));
-
-        log.debug("검색된 문서 내용 길이: {}", result.length());
-        return result;
-    }
 }

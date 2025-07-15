@@ -17,27 +17,31 @@ Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축, Storm Ope
 
 
 ### Chapter 1. Chat Model
-- ChatClient 생성
+- ChatClient 생성 (/api/vi/chat/chat)
 ```java
-    @Bean
-    public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
-        return chatCLientBuilder
-                .build();
-    }
+@Bean
+public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
+    return chatCLientBuilder
+            .build();
+}
 ```
 
-- Default System Prompt 설정
+- Default System Prompt 설정 
 ```java
-    @Bean
-    public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
-        return chatCLientBuilder
-                .defaultSystem("시스템 메시지")
-                .build();
-    }
+// OpenAiConfig.java
+
+@Bean
+public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
+    return chatCLientBuilder
+            .defaultSystem("시스템 메시지")
+            .build();
+}
 ```
 
-- Placeholder System Prompt 
+- Placeholder System Prompt (/api/vi/chat/chatplace)
 ```java
+// OpenAiConfig.java
+
 @Configuration
 public class AppConfig {
   @Value("classpath:/prompt.txt")
@@ -55,7 +59,8 @@ public class AppConfig {
 }
 ```
  
-- ChatResponse
+- ChatResponse (/api/vi/chat/chatjson)
+  - LLM 채팅 메시지 json 전송
 ```java
 @RestController
 @GetMapping("/chatjson")
@@ -84,9 +89,11 @@ public class RecipeController {
 }
 ``` 
 
+### Chapter 2. Structured Output
+
+![Structured Output](src/resources/templates/img/structured_output.png)
 
 
-### Chapter 2. 나만의 RAG 챗봇 만들기
 - **이론**: 나만의 RAG 챗봇 설계하기
 - **실습 1**: RAG 파이프라인 구축하기 - Data Indexing
 - **실습 2**: RAG 파이프라인 구축하기 - Data Retrieval & Generation

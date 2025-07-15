@@ -1,5 +1,6 @@
 package com.fbc.ai.controller.chat;
 
+import com.fbc.ai.domain.dto.Answer;
 import com.fbc.ai.domain.dto.ApiResponseDto;
 import com.fbc.ai.domain.dto.ApiResponseMetaDto;
 import com.fbc.ai.domain.dto.ChatRequestDto;
@@ -50,11 +51,21 @@ public class ChatController {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     @GetMapping("/chat")
-    public ResponseEntity<ApiResponseDto<Map<String, Object>>> chatMessage(
+    public String chatMessage(
             @Parameter(description = "채팅 메시지", required = true)
             @RequestParam("query") String query) {
 
         ChatResponse response = chatService.chatWithResponse(query);
+        return response.getResult().getOutput().getText();
+    }
+
+    /**
+    public ResponseEntity<ApiResponseDto<Map<String, Object>>> chatMessage(
+                    @Parameter(description = "채팅 메시지", required = true)
+                    @RequestParam("query") String query) {
+
+        ChatResponse response = chatService.chatWithResponse(query);
+
         if (response != null) {
             Map<String, Object> data = new HashMap<>();
             data.put("answer", response.getResult().getOutput().getText());
@@ -72,6 +83,7 @@ public class ChatController {
             );
         }
     }
+    */
 
     /**
      * PlaceHolder 연동
@@ -100,6 +112,7 @@ public class ChatController {
             ) {
 
         ChatResponse response = chatService.chatPlaceHolderWithResponse(subject, tone, query);
+
         if (response != null) {
             Map<String, Object> data = new HashMap<>();
             data.put("answer", response.getResult().getOutput().getText());
@@ -118,12 +131,13 @@ public class ChatController {
         }
     }
 
+
     /**
      * 기본 OpenAI API로 응답 생성(Get)
      */
     @Operation(
             summary = "[ChatResponse] LLM 채팅 메시지 json 전송",
-            description = "사용자의 메시지를 받아 OpenAI API를 통해 응답을 생성합니다."
+            description = "OpenAI API 응답(ChatResponse)을 json으로 전송합니다."
     )
     @ApiResponse(
             responseCode = "200",
@@ -133,6 +147,14 @@ public class ChatController {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     @GetMapping("/chatjson")
+    public ChatResponse chatResponseJson(
+            @Parameter(description = "채팅 메시지", required = true)
+            @RequestParam("query") String query) {
+
+        return chatService.chatJson(query);
+    }
+
+    /**
     public ResponseEntity<ApiResponseDto<Map<String, Object>>> chatResponseJson(
             @Parameter(description = "채팅 메시지", required = true)
             @RequestParam("query") String query) {
@@ -156,8 +178,33 @@ public class ChatController {
             );
         }
     }
+    */
 
+    /**
+     * User Prompt - PlaceHolder 연동
+     */
+    @Operation(
+            summary = "[User Prompt - PlaceHolder 연동] 요리 레시피",
+            description = "사용자의 메시지를 받아 레시피에 대한 응답 처리."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "LLM 응답 성공",
+            content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
+    )
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    @GetMapping("/recipe")
+    public Answer chatRecipe(
+            @Parameter(description = "채팅 메시지(요리순서,재료)", required = true)
+            @RequestParam("query") String query,
 
+            @Parameter(description = "요리이름(햄버거)", required = true)
+            @RequestParam("foodName") String foodName
+    ) {
+
+        return chatService.recipe(foodName, query);
+    }
 
     /**
      * 사용자의 메시지를 받아 OpenAI API로 응답 생성

@@ -250,7 +250,7 @@
 
         try {
             // API 호출 (모델 정보 포함)
-            const response = await fetch(`/api/pdf/answer?question=${encodeURIComponent(question)}&model=${encodeURIComponent(model)}`);
+            const response = await fetch(`/api/v1/pdf/answer?question=${encodeURIComponent(question)}&model=${encodeURIComponent(model)}`);
             const result = await response.json();
 
             // AI 응답 메시지 추가

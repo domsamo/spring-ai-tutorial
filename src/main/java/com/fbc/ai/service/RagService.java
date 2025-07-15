@@ -6,6 +6,9 @@ import com.fbc.ai.domain.dto.StormContextDto;
 import com.fbc.ai.exception.DocumentProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,15 +36,18 @@ public class RagService {
     private final String stormApiKey;
     private final String defaultBucketId;
     private final String defaultWebhookUrl;
+    private final VectorStore vectorStore;
 
     public RagService(
             @Value("${storm.api.key:123}") String stormApiKey,
             @Value("${storm.default.bucket.id:123}") String defaultBucketId,
-            @Value("{webhook.url:#{null}}") String defaultWebhookUrl
+            @Value("{webhook.url:#{null}}") String defaultWebhookUrl,
+            VectorStore vectorStore
     ) {
         this.stormApiKey = stormApiKey;
         this.defaultBucketId = defaultBucketId;
         this.defaultWebhookUrl = defaultWebhookUrl;
+        this.vectorStore = vectorStore;
         this.webClient = WebClient.builder()
                 .baseUrl("https://live-stargate.sionic.im/api/v2")
                 .build();
@@ -97,7 +103,7 @@ public class RagService {
                         if (data == null) {
                             throw new DocumentProcessingException("응답에 data 필드가 없습니다: " + response);
                         }
-                        
+
                         String documentId = (String) data.get("documentId");
                         if (documentId == null) {
                             throw new DocumentProcessingException("data에서 documentId를 찾을 수 없습니다: " + data);
@@ -154,7 +160,7 @@ public class RagService {
             List<String> bucketIds
     ) {
         logger.info("답변 생성 시작: question={}, bucketIds={}", question, bucketIds);
-        
+
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("question", question);
         if (bucketIds != null) {
@@ -176,12 +182,12 @@ public class RagService {
                     if (data == null) {
                         throw new DocumentProcessingException("응답 데이터가 올바르지 않습니다");
                     }
-                    
+
                     Map<String, Object> chatData = (Map<String, Object>) data.get("chat");
                     if (chatData == null) {
                         throw new DocumentProcessingException("채팅 데이터가 올바르지 않습니다");
                     }
-                    
+
                     List<Map<String, Object>> contextsData = (List<Map<String, Object>>) data.get("contexts");
                     if (contextsData == null) {
                         contextsData = new ArrayList<>();
@@ -203,11 +209,11 @@ public class RagService {
                                         contextMap.get("id").toString() : "unknown";
                                 String content = contextMap.get("context") != null ? 
                                         contextMap.get("context").toString() : "";
-                                
+
                                 Map<String, Object> metadata = new HashMap<>(contextMap);
                                 metadata.remove("context");
                                 metadata.remove("id");
-                                
+
                                 return new StormContextDto(documentId, content, metadata);
                             })
                             .collect(Collectors.toList());
@@ -220,5 +226,31 @@ public class RagService {
                     logger.error("답변 생성 실패: {}", e.getMessage(), e);
                     return new DocumentProcessingException("답변 생성 실패: " + e.getMessage(), e);
                 });
+    }
+
+    /**
+     * 질문과 관련된 문서 데이터를 검색합니다.
+     * 
+     * @param question 사용자 질문
+     * @return 검색된 문서 내용
+     */
+    public String findSimilarData(String question) {
+        logger.info("유사 문서 검색 시작: question={}", question);
+
+        SearchRequest request = SearchRequest.builder()
+                .query(question)
+                .topK(2)  // 상위 2개 문서 검색
+                .build();
+
+        List<Document> documents = vectorStore.similaritySearch(request);
+        logger.info("검색된 문서 수: {}", documents.size());
+
+        String result = documents
+                .stream()
+                .map(document -> document.getText())
+                .collect(Collectors.joining("\n\n"));
+
+        logger.info("검색된 문서 내용 길이: {}", result.length());
+        return result;
     }
 }

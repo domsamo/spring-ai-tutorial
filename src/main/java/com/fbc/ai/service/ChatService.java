@@ -1,6 +1,7 @@
 package com.fbc.ai.service;
 
 import com.fbc.ai.config.OpenAiConfig;
+import com.fbc.ai.domain.dto.Answer;
 import com.fbc.ai.domain.dto.ApiResponseMetaDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -114,6 +115,29 @@ public class ChatService {
     }
 
     /**
+     * User Prompt for Recipe
+     */
+    private final String recipePrompt = """
+            Answer for {foodName} for {query}?
+            Answer in Korean.  
+    """;
+
+    /**
+     * User Prompt 처리 및 ResponseEntity 처리
+     * @param foodName
+     * @param query
+     * @return
+     */
+    public Answer recipe(String foodName, String query) {
+        return chatClient.prompt()
+                .user(userSpec -> userSpec.text(recipePrompt)
+                    .param("foodName", foodName)
+                    .param("query", query)
+                ).call()
+                .entity(Answer.class);
+    }
+
+    /**
      * OpenAI 챗 API를 이용하여 응답을 생성합니다.
      *
      * @param userInput 사용자 입력 메시지
@@ -175,4 +199,6 @@ public class ChatService {
     public ApiResponseMetaDto extractMetadata(ChatResponse response, String model) {
         return apiMetaService.extractMetadata(response, model);
     }
+
+
 }
