@@ -91,7 +91,7 @@ public class RecipeController {
 
 ### Chapter 2. Structured Output
 
-![Structured Output](src/resources/templates/img/structured_output.png)
+![Structured Output](https://github.com/domsamo/spring-ai-tutorial/blob/main/src/main/resources/templates/img/structured_output.png)
 
 
 - **이론**: 나만의 RAG 챗봇 설계하기
