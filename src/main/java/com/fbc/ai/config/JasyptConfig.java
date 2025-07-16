@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Jasypt 암호화 처리 관련 설정
+ */
 @Configuration
 public class JasyptConfig {
 

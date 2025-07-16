@@ -45,20 +45,20 @@
    SELECT * FROM pg_extension;
 ```
 3. application.yml 파일에서 데이터베이스 연결 정보를 올바르게 설정합니다:
-   ```yaml
-   spring:
-     datasource:
-       url: jdbc:postgresql://localhost:5432/my_pg_db
-       username: spring
-       password: secret
-     ai:
-       vectorstore:
-         pgvector:
-           index-type: hnsw
-           distance-type: cosine_distance
-           dimensions: 1536
-           initialize-schema: false #(defult : false)
-   ```
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://host.docker.internal:5432/my_pg_db
+    username: spring
+    password: secret
+  ai:
+    vectorstore:
+      pgvector:
+        index-type: hnsw
+        distance-type: cosine_distance
+        dimensions: 1536
+        initialize-schema: false #(defult : false)
+```
    
 4. build.gradle 의존성 추가 
  
@@ -88,7 +88,7 @@ build.gradle 파일에서 다음 두 줄을 주석 처리하거나 제거합니�
 |spring.ai.vectorstore.pgvector.schema-name|         Vector store schema name          |public|
 |spring.ai.vectorstore.pgvector.table-name|          Vector store table name          |vector_store|
 
-`spring.ai.vectorstore.pgvector.initialize-schema=true` 로 설정하면 EXTENSION(vector, hstore, uuid-ossp) 들이 자동 확장되고, vector_tore 테이블이 자동 생성된다.
+`spring.ai.vectorstore.pgvector.initialize-schema=true` 로 설정하면 EXTENSION(vector, hstore, uuid-ossp) 들이 자동 확장되고, vector_store 테이블이 자동 생성된다.
 
 1. dependency 추가
 
@@ -98,7 +98,7 @@ build.gradle 파일에서 다음 두 줄을 주석 처리하거나 제거합니�
     developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
     ```
    
-2. compose.yml 실행
+2. compose.yml 생성 
 ```yaml
 services:
   pgvector:
@@ -125,9 +125,28 @@ spring:
         distance-type: COSINE_DISTANCE
         dimensions: 1536
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+        initialize-schema: true #(defult : false)
 ```
 
-Spring Application 기동시 자동으로 compose.yml 설정값을 읽어 container를 생성하고, datasource 정보를 처리합니다.
+- DockerDesktop 실행
+- Spring Application 기동시 자동으로 compose.yml 설정값을 읽어 container를 생성하고, datasource 정보를 처리합니다.
+
+4. Databse 확인
+ 
+```sql
+-- host : host.docker.internal
+-- dbname : my_pg_db
+-- user : spring
+-- pass : secret
+
+-- desc
+SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'vector_store';
+
+-- extension
+SELECT * FROM pg_extension;
+```
 
 ---
 
