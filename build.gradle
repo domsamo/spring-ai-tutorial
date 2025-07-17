@@ -50,6 +50,7 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox-io:3.0.0'
     implementation 'org.apache.pdfbox:fontbox:3.0.0'
     implementation 'org.apache.pdfbox:pdfbox-tools:3.0.0'
+    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
 
     // Docker -----------------------------------------------------------------------
 //    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'

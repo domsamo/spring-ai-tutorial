@@ -56,7 +56,7 @@ public class RagController {
 
             @Parameter(description = "버킷 ID (선택사항, 기본값은 설정된 기본 버킷)")
             @RequestParam(value = "bucketId", required = false) String bucketId
-    ) {
+    ) throws Exception {
         log.info("문서 등록 요청 받음: {}", file.getOriginalFilename());
 
         // 파일 유효성 검사
@@ -94,51 +94,51 @@ public class RagController {
     /**
      * 사용자 질의에 대해 관련 문서를 검색하고 RAG 기반 응답을 생성합니다.
      */
-    @Operation(
-            summary = "RAG 질의 수행",
-            description = "사용자 질문에 대해 관련 문서를 검색하고 RAG 기반 응답을 생성합니다."
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "질의 성공",
-            content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
-    )
-    @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    @ApiResponse(responseCode = "500", description = "서버 오류")
-    @PostMapping("/query")
-    public Mono<ResponseEntity<ApiResponseDto<QueryResponseDto>>> queryWithRag(
-            @Parameter(description = "질의 요청 객체", required = true)
-            @RequestBody QueryRequestDto request
-    ) {
-        log.info("RAG 질의 요청 받음: {}", request.getQuery());
-
-        // 유효성 검사
-        if (request.getQuery() == null || request.getQuery().isBlank()) {
-            log.warn("빈 질의가 요청됨");
-            return Mono.just(ResponseEntity.badRequest().body(
-                    new ApiResponseDto<QueryResponseDto>(false, "질의가 비어있습니다.")
-            ));
-        }
-
-        return ragService.generateAnswerWithContexts(request.getQuery(), request.getBucketIds())
-                .map(stormResponse -> {
-                    List<DocumentResponseDto> relevantDocuments = stormResponse.getContexts().stream()
-                            .map(DocumentDtoUtil::toDocumentResponseDto)
-                            .collect(Collectors.toList());
-
-                    QueryResponseDto queryResponse = new QueryResponseDto(
-                            stormResponse.getChat().getQuestion(),
-                            stormResponse.getChat().getAnswer(),
-                            relevantDocuments
-                    );
-
-                    return ResponseEntity.ok(new ApiResponseDto<>(true, queryResponse));
-                })
-                .onErrorResume(e -> {
-                    log.error("RAG 질의 처리 중 오류 발생", e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                            new ApiResponseDto<QueryResponseDto>(false, "질의 처리 중 오류가 발생했습니다: " + e.getMessage())
-                    ));
-                });
-    }
+//    @Operation(
+//            summary = "RAG 질의 수행",
+//            description = "사용자 질문에 대해 관련 문서를 검색하고 RAG 기반 응답을 생성합니다."
+//    )
+//    @ApiResponse(
+//            responseCode = "200",
+//            description = "질의 성공",
+//            content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
+//    )
+//    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+//    @ApiResponse(responseCode = "500", description = "서버 오류")
+//    @PostMapping("/query")
+//    public Mono<ResponseEntity<ApiResponseDto<QueryResponseDto>>> queryWithRag(
+//            @Parameter(description = "질의 요청 객체", required = true)
+//            @RequestBody QueryRequestDto request
+//    ) {
+//        log.info("RAG 질의 요청 받음: {}", request.getQuery());
+//
+//        // 유효성 검사
+//        if (request.getQuery() == null || request.getQuery().isBlank()) {
+//            log.warn("빈 질의가 요청됨");
+//            return Mono.just(ResponseEntity.badRequest().body(
+//                    new ApiResponseDto<QueryResponseDto>(false, "질의가 비어있습니다.")
+//            ));
+//        }
+//
+//        return ragService.generateAnswerWithContexts(request.getQuery(), request.getBucketIds())
+//                .map(stormResponse -> {
+//                    List<DocumentResponseDto> relevantDocuments = stormResponse.getContexts().stream()
+//                            .map(DocumentDtoUtil::toDocumentResponseDto)
+//                            .collect(Collectors.toList());
+//
+//                    QueryResponseDto queryResponse = new QueryResponseDto(
+//                            stormResponse.getChat().getQuestion(),
+//                            stormResponse.getChat().getAnswer(),
+//                            relevantDocuments
+//                    );
+//
+//                    return ResponseEntity.ok(new ApiResponseDto<>(true, queryResponse));
+//                })
+//                .onErrorResume(e -> {
+//                    log.error("RAG 질의 처리 중 오류 발생", e);
+//                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                            new ApiResponseDto<QueryResponseDto>(false, "질의 처리 중 오류가 발생했습니다: " + e.getMessage())
+//                    ));
+//                });
+//    }
 }

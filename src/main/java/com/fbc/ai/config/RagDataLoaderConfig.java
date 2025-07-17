@@ -12,6 +12,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.simple.JdbcClient;
 //import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.List;
@@ -19,21 +20,21 @@ import java.util.List;
 @Slf4j
 @Configuration
 public class RagDataLoaderConfig {
-//    private final VectorStore vectorStore;
-//    private final JdbcClient jdbcClient;
-//
-//    // # 0. PDF 경로(resources 아래)
-//    @Value("classpath:/SPRi_AI_Brief_7월호_산업동향.pdf")
-//    private Resource pdfResource;
-//
-//    public RagDataLoaderConfig(VectorStore vectorStore, JdbcClient jdbcClient) {
-//        this.vectorStore = vectorStore;
-//        this.jdbcClient = jdbcClient;
-//    }
-//
-//    @PostConstruct
-//    public void init(){
-//        Integer count=jdbcClient.sql("select count(*) from vector_store")
+    private final VectorStore vectorStore;
+    private final JdbcClient jdbcClient;
+
+    // # 0. PDF 경로(resources 아래)
+    @Value("classpath:/SPRi_AI_Brief_7월호_산업동향.pdf")
+    private Resource pdfResource;
+
+    public RagDataLoaderConfig(VectorStore vectorStore, JdbcClient jdbcClient) {
+        this.vectorStore = vectorStore;
+        this.jdbcClient = jdbcClient;
+    }
+
+    @PostConstruct
+    public void init(){
+//        Integer count = jdbcClient.sql("select count(*) from vector_store")
 //                .query(Integer.class)
 //                .single();
 //
@@ -66,5 +67,5 @@ public class RagDataLoaderConfig {
 //            vectorStore.accept(splitDocuments); // OpenAI 임베딩을 거친다.
 //            log.info("Application is ready to Serve the Requests");
 //        }
-//    }
+    }
 }
