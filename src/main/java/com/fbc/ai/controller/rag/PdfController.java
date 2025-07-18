@@ -43,8 +43,6 @@ public class PdfController {
 
     private final OpenAiApi openAiApi;
     private final OpenAiConfig openAiConfig;
-    private final VectorStore vectorStore;
-    private final ChatService chatService;
     private final ApiMetaService apiMetaService;
     private final RagService ragService;
 
@@ -72,8 +70,6 @@ public class PdfController {
     public PdfController(OpenAiApi openAiApi, OpenAiConfig openAiConfig, VectorStore vectorStore, ChatService chatService, ApiMetaService apiMetaService, RagService ragService) {
         this.openAiApi = openAiApi;
         this.openAiConfig = openAiConfig;
-        this.vectorStore = vectorStore;
-        this.chatService = chatService;
         this.apiMetaService = apiMetaService;
         this.ragService = ragService;
     }

@@ -214,7 +214,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     /**
-     * 시스템 input으로 AI 채팅 처리
+     * 시스템 커맨드 라인 input으로 AI 채팅 처리
      */
     public void startChat(){
         Scanner scanner = new Scanner(System.in);

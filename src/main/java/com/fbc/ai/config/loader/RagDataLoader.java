@@ -1,25 +1,19 @@
-package com.fbc.ai.config;
+package com.fbc.ai.config.loader;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.reader.ExtractedTextFormatter;
-import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
-import org.springframework.ai.reader.pdf.ParagraphPdfDocumentReader;
-import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
-import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.JdbcClient;
-//import org.springframework.jdbc.core.simple.JdbcClient;
 
-import java.util.List;
-
+/**
+ * vector_store 테이블에 pdf 파일을 로드하여 임베딩 처리
+ */
 @Slf4j
 @Configuration
-public class RagDataLoaderConfig {
+public class RagDataLoader {
     private final VectorStore vectorStore;
     private final JdbcClient jdbcClient;
 
@@ -27,7 +21,7 @@ public class RagDataLoaderConfig {
     @Value("classpath:/SPRi_AI_Brief_7월호_산업동향.pdf")
     private Resource pdfResource;
 
-    public RagDataLoaderConfig(VectorStore vectorStore, JdbcClient jdbcClient) {
+    public RagDataLoader(VectorStore vectorStore, JdbcClient jdbcClient) {
         this.vectorStore = vectorStore;
         this.jdbcClient = jdbcClient;
     }

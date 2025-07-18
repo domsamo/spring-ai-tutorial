@@ -28,4 +28,10 @@ public class RouteController {
     public String imagevoice(){
         return "imagev"; // image.html
     }
+
+    @GetMapping("/hotel")
+    public String hotel()  {
+        return "hotel";
+    }
+
 }

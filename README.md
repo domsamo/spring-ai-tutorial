@@ -133,33 +133,32 @@ Spring AI에서 Structured Output은 LLM의 자유로운 텍스트 출력을 구
 
 - List 형식 (/api/vi/chat/chatList)
 ```java
-    public List<String> chatlist(String query) {
-        return chatClient.prompt()
-              .user(query)
-              .call()
-              .entity(new ListOutputConverter(new DefaultConversionService()));
-    }
+public List<String> chatlist(String query) {
+    return chatClient.prompt()
+          .user(query)
+          .call()
+          .entity(new ListOutputConverter(new DefaultConversionService()));
+}
 ```
 
 - Map 형식 (/api/vi/chat/chatMap)
 ```java
-    public Map<String, String> chatMap(String query) {
-        return chatClient.prompt()
-            .user(query)
-            .call()
-            .entity(new ParameterizedTypeReference<Map<String, String>>() { });
+public Map<String, String> chatMap(String query) {
+    return chatClient.prompt()
+        .user(query)
+        .call()
+        .entity(new ParameterizedTypeReference<Map<String, String>>() { });
 }
-
 ```
 
 - User Object 형식 (/api/vi/chat/chatMovie)
 ```java
-    List<Movie> movieList = chatClient.prompt()
-            .user(userSpec -> userSpec.text(template)
-                    .param("directorName", directorName)
-                    .param("format", "json"))
-            .call()
-            .entity(new ParameterizedTypeReference<List<Movie>>() {});
+List<Movie> movieList = chatClient.prompt()
+        .user(userSpec -> userSpec.text(template)
+                .param("directorName", directorName)
+                .param("format", "json"))
+        .call()
+        .entity(new ParameterizedTypeReference<List<Movie>>() {});
 ```
 
 #### 4) Spring AI Advisors

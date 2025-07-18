@@ -14,7 +14,7 @@
             loadingAlert.style.display = "block";
 
             try {
-                const response = await fetch('/image', {
+                const response = await fetch('/api/v1/rag/image/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json; charset=UTF-8'

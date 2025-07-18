@@ -5,10 +5,14 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.ai.embedding.EmbeddingModel;
 
 /**
  * OpenAI API 설정
@@ -63,5 +67,19 @@ public class OpenAiConfig {
      */
     public String getDefaultModel() {
         return defaultModel;
+    }
+
+    /**
+     * hotel_vector_store 테이블용 VectorStore
+     * @param jdbcTemplate
+     * @param embeddingModel
+     * @return
+     */
+    @Bean
+    public VectorStore hotelVectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
+        return PgVectorStore.builder(jdbcTemplate, embeddingModel)
+                .vectorTableName("hotel_vector_store")
+                .dimensions(1536)
+                .build();
     }
 }

@@ -11,7 +11,7 @@ import java.io.File;
 public interface DocumentProcessingService {
 
     /**
-     * PDF 파일로부터 텍스트를 추출합니다.
+     * 파일로부터 텍스트를 추출합니다.
      *
      * @param pdfFile PDF 파일 객체
      * @return 추출된 텍스트
