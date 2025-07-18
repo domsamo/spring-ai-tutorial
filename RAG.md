@@ -64,6 +64,33 @@ public class RagController {
 #### 2) 다중 벡터 테이블 
 
 - 신규(hotel_vector_store) 벡터 테이블 참조
+
+```sql
+-- Table: public.hotel_vector_store
+
+-- DROP TABLE IF EXISTS public.hotel_vector_store;
+
+CREATE TABLE IF NOT EXISTS public.hotel_vector_store
+(
+    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    content text COLLATE pg_catalog."default",
+    metadata json,
+    embedding vector(1536),
+    CONSTRAINT hotel_vector_store_pkey PRIMARY KEY (id)
+    )
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.hotel_vector_store
+    OWNER to spring;
+-- Index: hotel_vector_store_embedding_idx
+
+-- DROP INDEX IF EXISTS public.hotel_vector_store_embedding_idx;
+
+CREATE INDEX IF NOT EXISTS hotel_vector_store_embedding_idx
+    ON public.hotel_vector_store USING hnsw
+    (embedding vector_cosine_ops)
+    TABLESPACE pg_default;
+```
  
 ```java
 // AiConfig.java
@@ -120,6 +147,7 @@ public class HotelController {
     }
 }
 ```
+
 script stream 처리
 ```javascript
 async function processStream(reader, contentElement) {
