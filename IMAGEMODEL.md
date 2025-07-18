@@ -6,7 +6,7 @@
 
 #### 1) OpenAI (DALL-2, DALL-3) 활용 
 
-- 챗봇으로 이미지 생성 (http://localhost:8080/imageview)
+- 챗봇으로 이미지 생성 (http://localhost:8080/image)
 ```text
 DALL-3 : 이미지 갯수 제한(Max 1개)
 DALL-2 : 이미지 갯수 제한(Max 3개), quality 선택 안됨.
@@ -84,3 +84,34 @@ function startSpeechRecognition() {
     recognition.start(); // 음성 인식 시작
 }
 ```
+
+### Chapter 4. Image 분석 
+
+- AI를 통해 이미지를 분석 (http://localhost:8080/imageview)
+```java
+@Override
+public String analyzeImage(MultipartFile imageFile, String message) throws IOException {
+
+    var media = new Media(MimeType.valueOf(contentType), imageFile.getResource());
+    var userMessage = new UserMessage(message, media);
+    var systemMessage = new SystemMessage(imageSystemMessage);
+    return chatModel.call(userMessage, systemMessage);
+}
+```
+
+- 수학 문제 풀이 (http://localhost:8080/imagemath)
+
+수학문제 이미지에 대한 풀이와 **핵심 키워드**에 대한 Youtube 검색을 통해 동영상 링크
+
+
+LaTeX(레이텍) 수학 공식을 MathJax(매스잭스)로 변환
+```javascript
+const data = await response.json();
+
+// Display the analysis results
+document.getElementById("resultSection").style.display = "block";
+document.getElementById("uploadedImage").src = data.imageUrl;
+document.getElementById("analysisText").innerText = data.analysisText;
+MathJax.typeset();
+```
+

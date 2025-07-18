@@ -24,7 +24,7 @@ public class OpenAiConfig {
     @Value("${spring.ai.openai.api-key}")
     private String apiKey;
 
-    @Value("${spring.ai.openai.chat.options.model:gpt-3.5-turbo}")
+    @Value("${spring.ai.openai.chat.options.model:gpt-4o-mini}")
     private String defaultModel;
 
     @Value("classpath:/prompt.txt")

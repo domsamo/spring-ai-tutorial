@@ -1,11 +1,26 @@
 package com.fbc.ai.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${upload.path}")
+    private String uploadPath;
+
+    /**
+     * 파일 업로드 경로를 리스스 경로와 연결 처리
+     * @param registry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")  // URL 패턴
+                .addResourceLocations("file:" + uploadPath);  // 파일 시스템의 실제 경로
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

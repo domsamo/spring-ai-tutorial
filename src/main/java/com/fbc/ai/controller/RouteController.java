@@ -19,14 +19,24 @@ public class RouteController {
         return "ask";
     }
 
-    @GetMapping("/imageview")
-    public String imageview(){
+    @GetMapping("/image")
+    public String image(){
         return "image"; // image.html
     }
 
     @GetMapping("/imagevoice")
     public String imagevoice(){
         return "imagev"; // image.html
+    }
+
+    @GetMapping("/imageview")
+    public String imageview(){
+        return "imageview";
+    }
+
+    @GetMapping("/imagemath")
+    public String imagemath(){
+        return "imagemath";
     }
 
     @GetMapping("/hotel")
