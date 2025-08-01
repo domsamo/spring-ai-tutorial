@@ -70,7 +70,7 @@ public class OpenAiConfig {
     }
 
     /**
-     * hotel_vector_store 테이블용 VectorStore
+     * hotel_vector_store 테이블(VectorStore)
      * @param jdbcTemplate
      * @param embeddingModel
      * @return
@@ -82,4 +82,20 @@ public class OpenAiConfig {
                 .dimensions(1536)
                 .build();
     }
+
+    /**
+     * movie 테이블(VectorStore)
+     * @param jdbcTemplate
+     * @param embeddingModel
+     * @return
+     */
+    @Bean
+    public VectorStore movieVectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
+        return PgVectorStore.builder(jdbcTemplate, embeddingModel)
+                .vectorTableName("movie_vector")
+                .dimensions(1536)
+                .build();
+    }
+
+
 }

@@ -9,12 +9,23 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+
+#---- audio(TTS) - default config --------------------------
+#      audio:
+#        speech:
+#          options:
+#            model: tts-1
+#            voice: alloy
+#            response-format: mp3
+#            speed: 1.0
+#---- chat --------------------------
       chat:
         options:
           model: gpt-4o-mini
       embedding:
         options:
           model: text-embedding-ada-002
+#---- image --------------------------
 #      image:
 #        options:
 #          model: dall-e-3
@@ -22,21 +33,46 @@ spring:
 #          n: 1
 #          height: 1024
 #          width: 1024
+#---- vectorstore --------------------------
     vectorstore:
       pgvector:
         index-type: hnsw
         distance-type: cosine_distance
         dimensions: 1536
         initialize-schema: false
+
+#---- docker --------------------------
   docker:
     compose:
       enabled: false
 
-  datasource:
-#    url: jdbc:postgresql://host.docker.internal:5432/my_pg_db
-#    username: "spring"
-#    password: "secret"
+  #  ----------- h2 -------------------
+#  h2:
+#    console:
+#      enabled: true
+#      settings:
+#        web-allow-others: true
+#      path: /h2-console
+#  jpa:
+#    defer-datasource-initialization: true #Hibernate 초기화가 먼저 실행되도록 Spring Boot에서 데이터소스 초기화를 지연
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    hibernate:
+#      ddl-auto: none  # create-drop
+#    show_sql: true
+#    generate-ddl: true
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:mem:testdb
+#    username: sa
 
+
+
+#  ----------- postgre -------------------
+  datasource:
+##    url: jdbc:postgresql://host.docker.internal:5432/my_pg_db
+##    username: "spring"
+##    password: "secret"
+#
     url: jdbc:postgresql://digitalab.synology.me:6432/dlab_ai_pg
     username: "dlab_ai"
     password: "ENC(2y0jzDpNlnzt/SuW7eZeiUBbPj6YjNYeNuX8qnaNm6J7KOuT3Gn1s5TIQY7PdyQd)"

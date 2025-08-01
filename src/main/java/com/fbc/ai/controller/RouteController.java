@@ -44,4 +44,29 @@ public class RouteController {
         return "hotel";
     }
 
+    @GetMapping("/recipeview")
+    public String recipeview(){
+        return "recipe";
+    }
+
+    @GetMapping("/sql")
+    public String index(){
+        return "sql";
+    }
+
+    @GetMapping("/stt")
+    public String stt(){
+        return "stt";
+    }
+
+    @GetMapping("/audioPlay")
+    public String audioPlay(){
+        return "tts";
+    }
+
+    @GetMapping("/movie")
+    public String getRecommendationForm() {
+        return "movieRAG";  // returns the HTML file 'recommend.html'
+    }
+
 }

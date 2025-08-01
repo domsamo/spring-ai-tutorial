@@ -166,3 +166,88 @@ async function processStream(reader, contentElement) {
 }
 ```
 
+### Chapter 2-1. 플롯 유사성을 기반으로 한 영화 추천 시스템 (http://localhost:8080/movie)
+
+- Table 생성
+```sql
+-- pgvector_movie.sql
+
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS hstore;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS movie_vector(
+                                           id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    content text,
+    metadata json,
+    embedding vector(1536)
+    );
+
+CREATE INDEX ON movie_vector USING HNSW (embedding vector_cosine_ops);
+```
+
+- DataLoader
+```text
+# MovieLoader
+```
+
+- RAG조횜 및 Google Api 조회
+
+```java
+@PostMapping("/recommend")
+public String recommendMovies1(@RequestParam("query") String query, Model model) throws Exception {
+    // Fetch similar movies using vector store
+    List<Document> results = movieVectorStore.similaritySearch(
+            SearchRequest.builder().
+                    query(query).
+                    similarityThreshold(0.85).
+                    topK(1).
+                    build());
+
+    if (!results.isEmpty()) {
+        Document topResult = results.get(0);
+        String movieContent = topResult.getText();
+        String title = movieContent.substring(movieContent.indexOf("(")+1, movieContent.lastIndexOf(")")); //(쇼생크탈출)
+
+        // Use Jsoup to fetch the YouTube URL
+        List<String> url = GoogleApiUtils.searchYouTube(title);
+        model.addAttribute("title", title);
+
+        // Add the movie details and YouTube URL to the model
+        model.addAttribute("results", movieContent);
+        model.addAttribute("youtubeUrls", url);
+    }else{
+        model.addAttribute("message", "No closely related movies found.");
+    }
+
+    model.addAttribute("query", query);
+    return "movieRAG";  // Renders the 'movieRAG.html' view
+}
+```
+
+- GoogleApiUtils (컴포넌트를 유틸 클래스와 같이 사용)
+ 
+```java
+@Component
+public class GoogleApiUtils {
+
+    // 1. 값을 주입받을 인스턴스 필드
+    @Value("${google.api-key:#{null}}")
+    private String googleApiKey;
+
+    // 2. 값을 저장할 static 필드
+    private static String staticGoogleApiKey;
+
+    // 3. @PostConstruct를 사용하여 Bean이 생성되고 의존성 주입이 완료된 후,
+    // 인스턴스 필드의 값을 static 필드로 복사
+    @PostConstruct
+    private void init() {
+        staticGoogleApiKey = this.googleApiKey;
+    }
+
+    // 4. static 메서드에서 static 필드를 사용할 수 있음
+    public static List<String> searchYouTube(String movieTitle) throws Exception {
+        return null;
+    }
+}    
+``` 

@@ -8,9 +8,9 @@ Spring AI를 활용하여 LLM 호출부터 RAG 파이프라인 구축 실습 프
 
 ## --- 환경 설정 ---
 ### 1. API Key 설정
-**${OPENAI_API_KEY}** 값은 윈도우 시스템 환경변수에 직접 설정 
+**${OPENAI_API_KEY}** 값은 윈도우 시스템 환경변수에 직접 설정
 
-`application.yml` 
+`application.yml`
 ```yaml
 spring:
   ai:
@@ -45,8 +45,8 @@ spring:
 
 ### Chapter 1. Chat Model
 
-#### 1) ChatClient 
-- ChatClient 생성 (/api/vi/chat/chat)
+#### 1) ChatClient
+- ChatClient 생성 (/api/v1/chat/chat)
 ```java
 @Bean
 public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
@@ -57,7 +57,7 @@ public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
 
 #### 2) Prompt
 
-- Default System Prompt 설정 
+- Default System Prompt 설정
 ```java
 // OpenAiConfig.java
 
@@ -69,7 +69,7 @@ public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
 }
 ```
 
-- Placeholder System Prompt (/api/vi/chat/chatplace)
+- Placeholder System Prompt (/api/v1/chat/chatplace)
 ```java
 // OpenAiConfig.java
 
@@ -89,8 +89,8 @@ public class AppConfig {
   }
 }
 ```
- 
-- ChatResponse (/api/vi/chat/chatjson)
+
+- ChatResponse (/api/v1/chat/chatjson)
   - LLM 채팅 메시지 json 전송
 ```java
 @RestController
@@ -131,7 +131,7 @@ Spring AI에서 Structured Output은 LLM의 자유로운 텍스트 출력을 구
 
 ![Structured Output2](https://github.com/domsamo/spring-ai-tutorial/blob/main/src/main/resources/templates/img/structured_output2.png)
 
-- List 형식 (/api/vi/chat/chatList)
+- List 형식 (/api/v1/chat/chatList)
 ```java
 public List<String> chatlist(String query) {
     return chatClient.prompt()
@@ -141,7 +141,7 @@ public List<String> chatlist(String query) {
 }
 ```
 
-- Map 형식 (/api/vi/chat/chatMap)
+- Map 형식 (/api/v1/chat/chatMap)
 ```java
 public Map<String, String> chatMap(String query) {
     return chatClient.prompt()
@@ -151,7 +151,7 @@ public Map<String, String> chatMap(String query) {
 }
 ```
 
-- User Object 형식 (/api/vi/chat/chatMovie)
+- User Object 형식 (/api/v1/chat/chatMovie)
 ```java
 List<Movie> movieList = chatClient.prompt()
         .user(userSpec -> userSpec.text(template)
@@ -166,25 +166,25 @@ List<Movie> movieList = chatClient.prompt()
 ```java
 @Bean
 public ChatClient chatClient(ChatClient.Builder chatCLientBuilder) {
-    return chatCLientBuilder
-            .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
-            .build();
+  return chatCLientBuilder
+          .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+          .build();
 }    
 ```
- 
+
 - CommandLineAppStartupRunner
 ```java
 public class CommandLineAppStartupRunner implements CommandLineRunner {
 
-    private final ChatService chatService;
+  private final ChatService chatService;
 
-    public CommandLineAppStartupRunner(ChatService chatService) {
-        this.chatService = chatService;
-    }
+  public CommandLineAppStartupRunner(ChatService chatService) {
+    this.chatService = chatService;
+  }
 
-    @Override
-    public void run(String... args) throws Exception {
-        chatService.startChat();
-    }
+  @Override
+  public void run(String... args) throws Exception {
+    chatService.startChat();
+  }
 }
 ``` 
